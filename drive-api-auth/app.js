@@ -16,7 +16,7 @@
 var path = require('path');
 var express = require('express');
 var session = require('cookie-session');
-var spreadheets = require('edit-google-spreadsheet');
+var Spreadsheet = require('edit-google-spreadsheet');
 
 var app = express();
 var config = require('./config')();
@@ -32,34 +32,72 @@ app.use(session({
 }));
 // [END session]
 
+
+
+
 // OAuth2
 var oauth2 = require('./lib/oauth2')(config.oauth2);
+
 app.use(oauth2.router);
 
 // Setup modules and dependencies
 var model = require('./api/model')(config);
 
+app.use('/api', require('./api/api')(model));
+app.use('/private', require('./api/crud')(model, oauth2));
 
-app.use('/api/spreadsheet', function(req, res){
-  // GoogleSpreadsheets({
-  //     key: '1A0FntcSV76QxWYCyWSgbv9Xu8lBH13Ac23SyL_V5kGc',
-  //     auth: oauth2.getClient()
-  // }, function(err, spreadsheet) {
-  //     spreadsheet.worksheets[0].cells({
-  //         range: 'R1C1:R5C5'
-  //     }, function(err, cells) {
-  //         // Cells will contain a 2 dimensional array with all cell data in the
-  //         // range requested.
-  //         console.log(cells);
-  //         res.send(cells);
-  //     });
-  // });
+app.use('/api/spreadsheet', oauth2.required, function(req, res){
+
+  console.log("url: /api/spreadsheet");
+
+  Spreadsheet.load({
+      debug: true,
+      spreadsheetName: 'Demo Data',
+      worksheetName: 'Total',
+
+      // Choose from 1 of the 5 authentication methods:
+
+      //    1. Username and Password has been deprecated. OAuth2 is recommended. 
+
+      // OR 2. OAuth
+      // oauth : {
+      //   email: 'my-name@google.email.com',
+      //   keyFile: 'my-private-key.pem'
+      // },
+
+      // OR 3. OAuth2 (See get_oauth2_permissions.js)
+      oauth2: {
+        client_id: config.oauth2.clientId,
+        client_secret: config.oauth2.clientSecret,
+        refresh_token: ''
+      },
+
+      // OR 4. Static Token
+      // accessToken: {
+      //   type: 'Bearer',
+      //   token: 'my-generated-token'
+      // },
+
+      // OR 5. Dynamic Token
+      // accessToken: function(callback) {
+      //   //... async stuff ...
+      //   callback(null, token);
+      // }
+    }, function sheetReady(err, spreadsheet) {
+      //use speadsheet!
+      if (err) {res.status(err.code).send(err.message || 'Something broke!')}
+      console.log(spreadsheet)
+    });
 });
 
 // Redirect root to /books
 app.get('/', function (req, res) {
-  res.redirect('/books');
+  // res.redirect('/books');
+  var date = new Date();
+  console.log('server response '+date);
+  res.send('yo. ' + date);
 });
+
 
 // Basic 404 handler
 app.use(function (req, res) {

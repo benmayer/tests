@@ -15,7 +15,8 @@
 
 var getConfig = module.exports = function () {
   return {
-    port: process.env.PORT || 3000,
+    date : function (){return new Date();},
+    port: process.env.PORT || 8080,
 
     // Secret is used by sessions to encrypt the cookie.
     secret: process.env.SESSION_SECRET || 'your-secret-here',
@@ -46,7 +47,10 @@ var getConfig = module.exports = function () {
       clientSecret: process.env.OAUTH_CLIENT_SECRET || 'vwSRPX-hBGuqrAW7PcRheQj7',
       redirectUrl: process.env.OAUTH2_CALLBACK ||
         'http://localhost:8080/oauth2callback',
-      scopes: ['email', 'profile']
+      scopes: [
+        // 'https://www.googleapis.com/auth/drive.readonly',
+        'https://spreadsheets.google.com/feeds'
+      ]
     }
   };
 };

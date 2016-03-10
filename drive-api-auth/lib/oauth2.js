@@ -174,11 +174,17 @@ module.exports = function(config) {
   // [START callback]
   router.get('/oauth2callback', function(req, res) {
     if (!req.query.code || req.query.state !== req.session.oauth2statetoken) {
-      return res.status(400).send('Invalid auth code or state token.');
+      if (req.query.error === "access_denied"){
+        return res.status(400).send('You will have to give the Dashboard access to spreadsheets');
+      }else {
+        return res.status(400).send('Invalid auth code or state token.');
+      }
     }
     getClient().getToken(req.query.code, function(err, tokens) {
       if (err) { return res.status(400).send(err.message); }
       req.session.oauth2tokens = tokens;
+
+      console.log(tokens);
 
       /* Get the user's info and store it in the session */
       var client = getClient();
