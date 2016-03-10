@@ -49,11 +49,19 @@ app.use('/private', require('./api/crud')(model, oauth2));
 app.use('/api/spreadsheet', oauth2.required, function(req, res){
 
   console.log("url: /api/spreadsheet");
+  console.log('req.session');
+  console.log(req.session);
+  console.log('req.query.pageToken');
+  console.log(req.session.oauth2tokens.refresh_token);
+  console.log(new Date(req.session.oauth2tokens.expiry_date));
 
   Spreadsheet.load({
       debug: true,
-      spreadsheetName: 'Demo Data',
+      spreadsheetId: "18BHSE_9r_jtbOBdWUEN8_hfbncFVWRJ8H0Jf03mLbW0",
       worksheetName: 'Total',
+      // spreadsheetId : "18BHSE_9r_jtbOBdWUEN8_hfbncFVWRJ8H0Jf03mLbW0",
+      // worksheetId : 'od6',
+
 
       // Choose from 1 of the 5 authentication methods:
 
@@ -69,7 +77,7 @@ app.use('/api/spreadsheet', oauth2.required, function(req, res){
       oauth2: {
         client_id: config.oauth2.clientId,
         client_secret: config.oauth2.clientSecret,
-        refresh_token: ''
+        refresh_token: req.session.oauth2tokens.refresh_token
       },
 
       // OR 4. Static Token
@@ -83,10 +91,10 @@ app.use('/api/spreadsheet', oauth2.required, function(req, res){
       //   //... async stuff ...
       //   callback(null, token);
       // }
-    }, function sheetReady(err, spreadsheet) {
+    }, function sheetReady(err, sheet) {
       //use speadsheet!
       if (err) {res.status(err.code).send(err.message || 'Something broke!')}
-      console.log(spreadsheet)
+      res.json(sheet.raw);
     });
 });
 

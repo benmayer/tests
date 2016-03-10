@@ -19,7 +19,7 @@ var getConfig = module.exports = function () {
     port: process.env.PORT || 8080,
 
     // Secret is used by sessions to encrypt the cookie.
-    secret: process.env.SESSION_SECRET || 'your-secret-here',
+    secret: process.env.SESSION_SECRET || 'this:is:a:ssssdfsd',
 
     // dataBackend can be 'datastore', 'cloudsql', or 'mongodb'. Be sure to
     // configure the appropriate settings for each storage engine below.
@@ -49,6 +49,8 @@ var getConfig = module.exports = function () {
         'http://localhost:8080/oauth2callback',
       scopes: [
         // 'https://www.googleapis.com/auth/drive.readonly',
+        'email', 
+        'profile',
         'https://spreadsheets.google.com/feeds'
       ]
     }

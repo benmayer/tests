@@ -173,6 +173,11 @@ module.exports = function(config) {
   // `/oauth2/authorize`.
   // [START callback]
   router.get('/oauth2callback', function(req, res) {
+
+    console.log("api/oauth2callback");
+    console.log(req.query);
+    console.log(req.session);
+
     if (!req.query.code || req.query.state !== req.session.oauth2statetoken) {
       if (req.query.error === "access_denied"){
         return res.status(400).send('You will have to give the Dashboard access to spreadsheets');
@@ -180,17 +185,20 @@ module.exports = function(config) {
         return res.status(400).send('Invalid auth code or state token.');
       }
     }
+
     getClient().getToken(req.query.code, function(err, tokens) {
+      console.log('getting tokens');
       if (err) { return res.status(400).send(err.message); }
       req.session.oauth2tokens = tokens;
-
       console.log(tokens);
-
       /* Get the user's info and store it in the session */
       var client = getClient();
       client.setCredentials(tokens);
+
       getUserProfile(client, function(err, profile) {
         if (err) { return res.status('500').send(err.message); }
+        console.log("profile in req session");
+        console.log(req.session.profile);
         req.session.profile = {
           id: profile.id,
           displayName: profile.displayName,
