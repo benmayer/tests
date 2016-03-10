@@ -1,0 +1,8 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+#other
+cache
+*.log
+node_modules
